@@ -5,6 +5,7 @@ import {OctopusCard} from "../../components/OctopusCard";
 
 export const OctoDetails = () => {
   const [octopus, setOctopus] = useState(null);
+  const [locked, setLocked] = useState(false);
   const router = useRouter();
   const {octoId} = router.query;
   useEffect(() => {
@@ -12,7 +13,12 @@ export const OctoDetails = () => {
       try {
         const response = await fetch(`/api/octopodes/${octoId}`);
         if (!response.ok) {
-          throw new Error(`status: ${response.status}`);
+          if (response.status === 401) {
+            setLocked(true);
+            return;
+          } else {
+            throw new Error(`status: ${response.status}`);
+          }
         }
         const data = await response.json();
         setOctopus(data);
@@ -28,7 +34,7 @@ export const OctoDetails = () => {
 
   return (
     <StyledContainer>
-      {octopus && <OctopusCard octopus={octopus} />}
+      <OctopusCard octopus={octopus} locked={locked} />
     </StyledContainer>
   );
 };
